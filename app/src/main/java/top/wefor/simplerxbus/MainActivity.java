@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import rx.Subscription;
 import rx.functions.Action1;
 import top.wefor.simplerxbus.rxbus.ChangeAnswerEvent;
 import top.wefor.simplerxbus.rxbus.RxBus;
@@ -16,6 +17,8 @@ public class MainActivity extends AppCompatActivity {
 
     TextView mResultTv;
     Button mEnterBtn;
+
+    Subscription mSubscription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        RxBus.getDefault().toObserverable(ChangeAnswerEvent.class)
+        mSubscription = RxBus.getDefault().toObserverable(ChangeAnswerEvent.class)
                 .subscribe(new Action1<ChangeAnswerEvent>() {
                     @Override
                     public void call(ChangeAnswerEvent changeAnswerEvent) {
@@ -41,4 +44,12 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (!mSubscription.isUnsubscribed())
+            mSubscription.unsubscribe();
+    }
+
 }
